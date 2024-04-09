@@ -1,0 +1,20 @@
+version: '3.9'
+services:
+
+  demo:
+    container_name: demo
+    build:
+      context: ../..
+      dockerfile: ./build/demo/Dockerfile
+    restart: always
+    volumes:
+      - ../../configs/demo:/configs/demo
+    command: sh -c "sleep 10 && ./opt/app/bin --config configs/demo/config.json"
+    ports:
+      - "8000:80"
+    networks:
+      - demo_network
+
+networks:
+  demo_network:
+    driver: bridge
