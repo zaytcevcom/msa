@@ -1,6 +1,7 @@
 package internalhttp
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -28,11 +29,8 @@ func NewHandler(logger Logger, app Application) http.Handler {
 }
 
 func (s *handler) Health(w http.ResponseWriter, r *http.Request) {
-	message := s.app.Health(r.Context())
-
-	if _, err := fmt.Fprint(w, message); err != nil {
-		return
-	}
+	response := s.app.Health(r.Context())
+	writeResponseSuccess(w, response, s.logger)
 }
 
 func methodNotAllowedHandler(w http.ResponseWriter, _ *http.Request) {
@@ -41,4 +39,16 @@ func methodNotAllowedHandler(w http.ResponseWriter, _ *http.Request) {
 
 func methodNotFoundHandler(w http.ResponseWriter, _ *http.Request) {
 	http.Error(w, "404 Not Found", http.StatusNotFound)
+}
+
+func writeResponseSuccess(w http.ResponseWriter, data interface{}, logger Logger) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	buf, err := json.Marshal(data)
+	if err != nil {
+		logger.Error(fmt.Sprintf("response marshal error: %s", err))
+	}
+	_, err = w.Write(buf)
+	if err != nil {
+		logger.Error(fmt.Sprintf("response marshal error: %s", err))
+	}
 }

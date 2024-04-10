@@ -19,6 +19,10 @@ func New(logger Logger) *App {
 	}
 }
 
-func (a App) Health(_ context.Context) string {
-	return "OK"
+func (a App) Health(_ context.Context) interface{} {
+	return struct {
+		Status string `json:"status"`
+	}{
+		Status: "OK",
+	}
 }

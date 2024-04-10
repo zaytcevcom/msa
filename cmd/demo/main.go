@@ -37,7 +37,7 @@ func main() {
 
 	demo := app.New(logg)
 
-	port := 80
+	port := 8000
 	server := internalhttp.New(logg, demo, "", port)
 
 	go func() {

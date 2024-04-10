@@ -9,9 +9,9 @@ services:
     restart: always
     volumes:
       - ../../configs/demo:/configs/demo
-    command: sh -c "sleep 10 && ./opt/app/bin --config configs/demo/config.json"
+    command: sh -c "./opt/app/bin --config configs/demo/config.json"
     ports:
-      - "8000:80"
+      - "8000:8000"
     networks:
       - demo_network
 

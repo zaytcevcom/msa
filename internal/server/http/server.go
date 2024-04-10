@@ -21,7 +21,7 @@ type Logger interface {
 }
 
 type Application interface {
-	Health(ctx context.Context) string
+	Health(ctx context.Context) interface{}
 }
 
 func New(logger Logger, app Application, host string, port int) *Server {
