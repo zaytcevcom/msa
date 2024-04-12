@@ -66,3 +66,15 @@ lint: install-lint-deps
 	golangci-lint run ./...
 
 .PHONY: build run build-img run-img version test lint
+
+
+k8s-init:
+	minikube delete && \
+    minikube start
+
+k8s: k8s-init k8s-ingress
+
+k8s-ingress:
+	kubectl apply -f ./deployments/k8s/ && \
+	minikube addons enable ingress && \
+	minikube tunnel
