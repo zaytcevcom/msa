@@ -3,11 +3,16 @@ package main
 import "github.com/spf13/viper"
 
 type Config struct {
-	Logger loggerConf
+	Logger   loggerConf
+	Postgres PostgresConf
 }
 
 type loggerConf struct {
 	Level string
+}
+
+type PostgresConf struct {
+	Dsn string
 }
 
 func LoadConfig(path string) (Config, error) {

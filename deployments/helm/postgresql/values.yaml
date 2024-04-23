@@ -1,0 +1,4 @@
+auth:
+  username: "test"
+  password: "test"
+  database: "demo"

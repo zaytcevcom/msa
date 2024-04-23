@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: migrations
+spec:
+  schedule: " *   *   *   *   * "
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: {{ .Values.migrations.name }}
+              image: "{{ .Values.migrations.image.repository }}:{{ .Values.migrations.image.version }}"
+              env:
+              - name: DSN
+                valueFrom:
+                  secretKeyRef:
+                    name:
+                      demo-secret
+                    key: dsn
+          restartPolicy: OnFailure

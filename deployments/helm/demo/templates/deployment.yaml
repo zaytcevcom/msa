@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-deployment
+spec:
+  replicas: {{ .Values.demo.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.demo.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.demo.name }}
+    spec:
+      containers:
+        - name: {{ .Values.demo.name }}
+          image: "{{ .Values.demo.image.repository }}:{{ .Values.demo.image.version }}"
+          ports:
+            - containerPort: {{ .Values.demo.ports.http }}
+          command: ["sh", "-c", "{{ .Values.demo.startCommand }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs/demo
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.demo.ports.http }}
+            initialDelaySeconds: 20
+            periodSeconds: 5
+      volumes:
+        - name: config-volume
+          configMap:
+            name: demo-config

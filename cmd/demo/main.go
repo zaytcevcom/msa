@@ -12,6 +12,7 @@ import (
 	"github.com/zaytcevcom/msa/internal/app"
 	"github.com/zaytcevcom/msa/internal/logger"
 	internalhttp "github.com/zaytcevcom/msa/internal/server/http"
+	sqlstorage "github.com/zaytcevcom/msa/internal/storage/sql"
 )
 
 var configFile string
@@ -35,7 +36,20 @@ func main() {
 
 	logg := logger.New(config.Logger.Level, nil)
 
-	demo := app.New(logg)
+	storage := sqlstorage.New(config.Postgres.Dsn)
+	if err = storage.Connect(ctx); err != nil {
+		fmt.Println("cannot connect to storage: %w", err)
+		return
+	}
+
+	defer func(storage app.Storage, ctx context.Context) {
+		err := storage.Close(ctx)
+		if err != nil {
+			fmt.Println("Cannot close storage connection", err)
+		}
+	}(storage, ctx)
+
+	demo := app.New(logg, storage)
 
 	port := 8000
 	server := internalhttp.New(logg, demo, "", port)

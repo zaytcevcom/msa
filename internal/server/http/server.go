@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/zaytcevcom/msa/internal/storage"
 )
 
 type Server struct {
@@ -22,6 +24,17 @@ type Logger interface {
 
 type Application interface {
 	Health(ctx context.Context) interface{}
+	GetByID(ctx context.Context, id int) (*storage.User, error)
+	Create(
+		ctx context.Context,
+		username string,
+		firstName string,
+		lastName string,
+		email string,
+		phone string,
+	) (int, error)
+	Update(ctx context.Context, id int, user storage.User) error
+	Delete(ctx context.Context, id int) error
 }
 
 func New(logger Logger, app Application, host string, port int) *Server {
