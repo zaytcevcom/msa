@@ -40,7 +40,7 @@ type Application interface {
 func New(logger Logger, app Application, host string, port int) *Server {
 	server := &http.Server{
 		Addr:         net.JoinHostPort(host, strconv.Itoa(port)),
-		Handler:      NewHandler(logger, app),
+		Handler:      NewHandler(logger, app, PrometheusMiddleware),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

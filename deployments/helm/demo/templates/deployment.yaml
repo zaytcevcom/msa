@@ -15,8 +15,6 @@ spec:
       containers:
         - name: {{ .Values.demo.name }}
           image: "{{ .Values.demo.image.repository }}:{{ .Values.demo.image.version }}"
-          ports:
-            - containerPort: {{ .Values.demo.ports.http }}
           command: ["sh", "-c", "{{ .Values.demo.startCommand }}"]
           volumeMounts:
             - name: config-volume
