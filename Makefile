@@ -21,11 +21,11 @@ docker-build:
 	docker compose -f ./deployments/development/docker-compose.yml build --pull
 
 dockerhub-build-amd64:
-	docker build -f ./build/demo/Dockerfile -t zaytcevcom/go-msa:1.0.3 .
+	docker build -f ./build/demo/Dockerfile -t zaytcevcom/go-msa:1.0.4 .
 	docker build -f ./build/migrations/Dockerfile -t zaytcevcom/go-msa-migrations:1.0.1 .
 
 dockerhub-push:
-	docker push zaytcevcom/go-msa:1.0.3
+	docker push zaytcevcom/go-msa:1.0.4
 	docker push zaytcevcom/go-msa-migrations:1.0.1
 
 docker-up:
@@ -73,11 +73,18 @@ lint: install-lint-deps
 
 
 helm: k8s-init \
-	helm-postgres helm-demo \
+	helm-prometheus helm-postgres \
+	helm-demo \
 	k8s-ingress
+
+helm-prometheus:
+	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts && \
+	helm repo update && \
+	helm install stack prometheus-community/kube-prometheus-stack -f ./deployments/helm/prometheus/values.yaml
 
 helm-postgres:
 	helm repo add bitnami https://charts.bitnami.com/bitnami && \
+	helm repo update && \
 	helm install db bitnami/postgresql -f ./deployments/helm/postgresql/values.yaml
 
 helm-demo:
@@ -110,3 +117,6 @@ wait-postgres:
 
 migrations-migrate:
 	goose -dir migrations postgres "user=test password=test dbname=demo host=localhost sslmode=disable" up
+
+ab:
+	@bash -c 'for i in {1..25}; do ab -c 250 -n 1000 "http://arch.homework/user/1"; done'

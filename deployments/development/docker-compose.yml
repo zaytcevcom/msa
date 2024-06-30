@@ -12,12 +12,13 @@ services:
     command: sh -c "./opt/app/bin --config configs/demo/config.json"
     ports:
       - "8000:8000"
+      - "9093:9093"
     networks:
       - demo_network
 
   postgres:
     image: postgres:13
-    container_name: demo_postgres
+    container_name: db-postgresql
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test

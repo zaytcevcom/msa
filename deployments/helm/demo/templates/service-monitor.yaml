@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: demo-monitor
+  labels:
+    app: demo
+spec:
+  endpoints:
+    - port: metrics
+      scheme: http
+      path: /metrics
+      scrapeTimeout: 30s
+      honorLabels: true
+  selector:
+    matchLabels:
+      app: demo

@@ -12,6 +12,7 @@ import (
 	"github.com/zaytcevcom/msa/internal/app"
 	"github.com/zaytcevcom/msa/internal/logger"
 	internalhttp "github.com/zaytcevcom/msa/internal/server/http"
+	"github.com/zaytcevcom/msa/internal/server/metrics"
 	sqlstorage "github.com/zaytcevcom/msa/internal/storage/sql"
 )
 
@@ -29,6 +30,9 @@ func main() {
 		fmt.Println("Error loading config: ", err)
 		return
 	}
+
+	port := 8000
+	portMetrics := 9093
 
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
@@ -49,9 +53,12 @@ func main() {
 		}
 	}(storage, ctx)
 
+	go func() {
+		_ = metrics.Listen("", portMetrics)
+	}()
+
 	demo := app.New(logg, storage)
 
-	port := 8000
 	server := internalhttp.New(logg, demo, "", port)
 
 	go func() {
@@ -65,7 +72,7 @@ func main() {
 		}
 	}()
 
-	logg.Info(fmt.Sprintf("Demo service listening on port: %d", port))
+	logg.Info(fmt.Sprintf("Demo service listening on port: %d, metrics port: %d", port, portMetrics))
 
 	if err := server.Start(ctx); err != nil {
 		logg.Error("failed to start http server: " + err.Error())
