@@ -29,7 +29,7 @@ type ErrorResponse struct {
 	} `json:"error"`
 }
 
-func NewHandler(logger Logger, app Application) http.Handler {
+func NewHandler(logger Logger, app Application, middleware func(http.Handler) http.Handler) http.Handler {
 	h := &handler{
 		logger: logger,
 		app:    app,
@@ -45,7 +45,7 @@ func NewHandler(logger Logger, app Application) http.Handler {
 	r.MethodNotAllowedHandler = http.HandlerFunc(methodNotAllowedHandler)
 	r.NotFoundHandler = http.HandlerFunc(methodNotFoundHandler)
 
-	return r
+	return middleware(r)
 }
 
 func (s *handler) Health(w http.ResponseWriter, r *http.Request) {
