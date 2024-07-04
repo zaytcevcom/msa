@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 
 	"github.com/zaytcevcom/msa/internal/storage"
@@ -21,7 +23,7 @@ type Logger interface {
 
 type Storage interface {
 	GetByID(ctx context.Context, id int) *storage.User
-	Create(ctx context.Context, user storage.User) (int, error)
+	Create(ctx context.Context, user storage.UserCreateDTO) (int, error)
 	Update(ctx context.Context, id int, user storage.User) error
 	Delete(ctx context.Context, id int) error
 	Connect(ctx context.Context) error
@@ -56,17 +58,22 @@ func (a *App) GetByID(ctx context.Context, id int) (*storage.User, error) {
 func (a *App) Create(
 	ctx context.Context,
 	username string,
+	password string,
 	firstName string,
 	lastName string,
 	email string,
 	phone string,
 ) (int, error) {
-	user := storage.User{
-		Username:  username,
-		FirstName: firstName,
-		LastName:  lastName,
-		Email:     email,
-		Phone:     phone,
+	hash := sha256.Sum256([]byte(password))
+	hashString := hex.EncodeToString(hash[:])
+
+	user := storage.UserCreateDTO{
+		Username:     username,
+		PasswordHash: hashString,
+		FirstName:    firstName,
+		LastName:     lastName,
+		Email:        email,
+		Phone:        phone,
 	}
 
 	id, err := a.storage.Create(ctx, user)

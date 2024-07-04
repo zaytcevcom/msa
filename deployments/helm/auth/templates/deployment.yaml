@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+spec:
+  replicas: {{ .Values.auth.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.auth.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.auth.name }}
+    spec:
+      containers:
+        - name: {{ .Values.auth.name }}
+          image: "{{ .Values.auth.image.repository }}:{{ .Values.auth.image.version }}"
+          command: ["sh", "-c", "{{ .Values.auth.startCommand }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs/auth
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.auth.ports.http }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: config-volume
+          configMap:
+            name: auth-config

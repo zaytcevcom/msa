@@ -1,0 +1,9 @@
+auth:
+  name: auth
+  replicaCount: 1
+  image:
+    repository: zaytcevcom/go-msa-auth
+    version: 1.0.1
+  ports:
+    http: 8001
+  startCommand: "./opt/app/bin --config configs/auth/config.json"

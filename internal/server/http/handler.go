@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/zaytcevcom/msa/internal/server/http/middleware"
 	"github.com/zaytcevcom/msa/internal/storage"
 )
 
@@ -17,6 +18,7 @@ type handler struct {
 
 type UserRequest struct {
 	Username  string `json:"username,omitempty"`
+	Password  string `json:"password,omitempty"`
 	FirstName string `json:"firstName,omitempty"`
 	LastName  string `json:"lastName,omitempty"`
 	Email     string `json:"email,omitempty"`
@@ -29,7 +31,7 @@ type ErrorResponse struct {
 	} `json:"error"`
 }
 
-func NewHandler(logger Logger, app Application, middleware func(http.Handler) http.Handler) http.Handler {
+func NewHandler(logger Logger, app Application) http.Handler {
 	h := &handler{
 		logger: logger,
 		app:    app,
@@ -45,7 +47,7 @@ func NewHandler(logger Logger, app Application, middleware func(http.Handler) ht
 	r.MethodNotAllowedHandler = http.HandlerFunc(methodNotAllowedHandler)
 	r.NotFoundHandler = http.HandlerFunc(methodNotFoundHandler)
 
-	return middleware(r)
+	return r
 }
 
 func (s *handler) Health(w http.ResponseWriter, r *http.Request) {
@@ -65,6 +67,11 @@ func (s *handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		writeResponseError(w, err, s.logger)
+		return
+	}
+
+	if !accessIsAllowed(r, id) {
+		forbidden(w)
 		return
 	}
 
@@ -88,6 +95,7 @@ func (s *handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := s.app.Create(
 		r.Context(),
 		userData.Username,
+		userData.Password,
 		userData.FirstName,
 		userData.LastName,
 		userData.Email,
@@ -106,6 +114,11 @@ func (s *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		writeResponseError(w, err, s.logger)
+		return
+	}
+
+	if !accessIsAllowed(r, id) {
+		forbidden(w)
 		return
 	}
 
@@ -151,6 +164,11 @@ func (s *handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !accessIsAllowed(r, id) {
+		forbidden(w)
+		return
+	}
+
 	err = s.app.Delete(r.Context(), id)
 
 	if err != nil {
@@ -159,6 +177,18 @@ func (s *handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeResponseSuccess(w, 1, s.logger)
+}
+
+func accessIsAllowed(r *http.Request, userID int) bool {
+	value := r.Context().Value(middleware.UserIDKey{})
+	if value == nil {
+		return false
+	}
+
+	if userValue, ok := value.(int); ok {
+		return userValue == userID
+	}
+	return false
 }
 
 func methodNotAllowedHandler(w http.ResponseWriter, _ *http.Request) {
@@ -195,4 +225,8 @@ func writeResponseError(w http.ResponseWriter, err error, logger Logger) {
 	if err != nil {
 		logger.Error(fmt.Sprintf("response marshal error: %s", err))
 	}
+}
+
+func forbidden(w http.ResponseWriter) {
+	http.Error(w, "403 Forbidden", http.StatusForbidden)
 }

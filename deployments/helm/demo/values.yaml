@@ -3,7 +3,7 @@ demo:
   replicaCount: 3
   image:
     repository: zaytcevcom/go-msa
-    version: 1.0.4
+    version: 1.0.5
   ports:
     http: 8000
     metrics: 9093
