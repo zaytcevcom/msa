@@ -48,12 +48,28 @@ func (s *Storage) GetByID(ctx context.Context, id int) (user *storage.User) {
 	return users[0]
 }
 
-func (s *Storage) Create(ctx context.Context, user storage.User) (id int, err error) {
+func (s *Storage) GetByUsername(ctx context.Context, username string) (user *storage.PasswordDTO) {
+	var users []*storage.PasswordDTO
+	query := "SELECT id, username, password_hash FROM users WHERE username = $1 LIMIT 1"
+
+	err := s.db.SelectContext(ctx, &users, query, username)
+	if err != nil {
+		return nil
+	}
+
+	if len(users) != 1 {
+		return nil
+	}
+
+	return users[0]
+}
+
+func (s *Storage) Create(ctx context.Context, user storage.UserCreateDTO) (id int, err error) {
 	query := `
 		INSERT INTO users (
-			username, first_name, last_name, email, phone
+			username, password_hash, first_name, last_name, email, phone
 		) VALUES (
-		  :username, :first_name, :last_name, :email, :phone
+		  :username, :password_hash, :first_name, :last_name, :email, :phone
 	  	)
 		RETURNING id
 	`

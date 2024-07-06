@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "http://auth.default.svc.cluster.local:8001/auth"
+    nginx.ingress.kubernetes.io/auth-response-headers: "X-User-Id"
+spec:
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+          - path: /login
+            pathType: Prefix
+            backend:
+              service:
+                name: auth
+                port:
+                  number: 8001
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: demo
+                port:
+                  number: 8000

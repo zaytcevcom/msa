@@ -21,12 +21,14 @@ docker-build:
 	docker compose -f ./deployments/development/docker-compose.yml build --pull
 
 dockerhub-build-amd64:
-	docker build -f ./build/demo/Dockerfile -t zaytcevcom/go-msa:1.0.4 .
+	docker build -f ./build/demo/Dockerfile -t zaytcevcom/go-msa:1.0.5 .
 	docker build -f ./build/migrations/Dockerfile -t zaytcevcom/go-msa-migrations:1.0.1 .
+	docker build -f ./build/auth/Dockerfile -t zaytcevcom/go-msa-auth:1.0.1 .
 
 dockerhub-push:
-	docker push zaytcevcom/go-msa:1.0.4
+	docker push zaytcevcom/go-msa:1.0.5
 	docker push zaytcevcom/go-msa-migrations:1.0.1
+	docker push zaytcevcom/go-msa-auth:1.0.1
 
 docker-up:
 	docker compose -f ./deployments/development/docker-compose.yml up -d
@@ -75,6 +77,7 @@ lint: install-lint-deps
 helm: k8s-init \
 	helm-prometheus helm-postgres \
 	helm-demo \
+	helm-auth \
 	k8s-ingress
 
 helm-prometheus:
@@ -91,6 +94,10 @@ helm-demo:
 	kubectl create configmap demo-config --from-file=configs/demo/config.json && \
 	helm install demo ./deployments/helm/demo
 
+helm-auth:
+	kubectl create configmap auth-config --from-file=configs/auth/config.json && \
+	helm install auth ./deployments/helm/auth
+
 k8s: k8s-init \
 	k8s-demo \
 	k8s-ingress
@@ -104,7 +111,7 @@ k8s-demo:
 	kubectl apply -f ./deployments/k8s/demo
 
 k8s-ingress:
-	kubectl apply -f ./deployments/k8s/ && \
+	kubectl apply -f ./deployments/k8s/ingress && \
 	minikube addons enable ingress && \
 	minikube tunnel
 

@@ -1,4 +1,4 @@
-package internalhttp
+package internalauth
 
 import (
 	"context"
@@ -6,9 +6,6 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-
-	"github.com/zaytcevcom/msa/internal/server/http/middleware"
-	"github.com/zaytcevcom/msa/internal/storage"
 )
 
 type Server struct {
@@ -23,30 +20,20 @@ type Logger interface {
 	Error(msg string)
 }
 
+type Token struct {
+	AccessToken string `json:"accessToken"`
+	UserID      int    `json:"userId"`
+}
+
 type Application interface {
-	Health(ctx context.Context) interface{}
-	GetByID(ctx context.Context, id int) (*storage.User, error)
-	Create(
-		ctx context.Context,
-		username string,
-		password string,
-		firstName string,
-		lastName string,
-		email string,
-		phone string,
-	) (int, error)
-	Update(ctx context.Context, id int, user storage.User) error
-	Delete(ctx context.Context, id int) error
+	Auth(ctx context.Context, header http.Header) (int, error)
+	Login(ctx context.Context, username string, password string) (*Token, error)
 }
 
 func New(logger Logger, app Application, host string, port int) *Server {
-	handler := NewHandler(logger, app)
-	handler = middleware.PrometheusMiddleware(handler)
-	handler = middleware.HeaderMiddleware(handler)
-
 	server := &http.Server{
 		Addr:         net.JoinHostPort(host, strconv.Itoa(port)),
-		Handler:      handler,
+		Handler:      NewHandler(logger, app),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
