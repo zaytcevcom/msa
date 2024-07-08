@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-deployment
+spec:
+  replicas: {{ .Values.order.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.order.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.order.name }}
+    spec:
+      containers:
+        - name: {{ .Values.order.name }}
+          image: "{{ .Values.order.image.repository }}:{{ .Values.order.image.version }}"
+          command: ["sh", "-c", "{{ .Values.order.startCommand }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs/order
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.order.ports.http }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: config-volume
+          configMap:
+            name: order-config

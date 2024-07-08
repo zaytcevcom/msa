@@ -1,0 +1,5 @@
+apiVersion: v2
+name: account-creator
+description: Account creator
+type: application
+version: 1.0.0

@@ -1,11 +1,11 @@
-package sqlstorage
+package sqlstorageuser
 
 import (
 	"context"
 
 	_ "github.com/jackc/pgx/v4/stdlib" //nolint:justifying
 	"github.com/jmoiron/sqlx"
-	"github.com/zaytcevcom/msa/internal/storage"
+	storageuser "github.com/zaytcevcom/msa/internal/storage/user"
 )
 
 type Storage struct {
@@ -32,8 +32,8 @@ func (s *Storage) Close(_ context.Context) error {
 	return s.db.Close()
 }
 
-func (s *Storage) GetByID(ctx context.Context, id int) (user *storage.User) {
-	var users []*storage.User
+func (s *Storage) GetByID(ctx context.Context, id int) (user *storageuser.Entity) {
+	var users []*storageuser.Entity
 	query := "SELECT id, username, first_name, last_name, email, phone FROM users WHERE id = $1"
 
 	err := s.db.SelectContext(ctx, &users, query, id)
@@ -48,8 +48,8 @@ func (s *Storage) GetByID(ctx context.Context, id int) (user *storage.User) {
 	return users[0]
 }
 
-func (s *Storage) GetByUsername(ctx context.Context, username string) (user *storage.PasswordDTO) {
-	var users []*storage.PasswordDTO
+func (s *Storage) GetByUsername(ctx context.Context, username string) (user *storageuser.PasswordDTO) {
+	var users []*storageuser.PasswordDTO
 	query := "SELECT id, username, password_hash FROM users WHERE username = $1 LIMIT 1"
 
 	err := s.db.SelectContext(ctx, &users, query, username)
@@ -64,7 +64,7 @@ func (s *Storage) GetByUsername(ctx context.Context, username string) (user *sto
 	return users[0]
 }
 
-func (s *Storage) Create(ctx context.Context, user storage.UserCreateDTO) (id int, err error) {
+func (s *Storage) Create(ctx context.Context, user storageuser.CreateDTO) (id int, err error) {
 	query := `
 		INSERT INTO users (
 			username, password_hash, first_name, last_name, email, phone
@@ -83,7 +83,7 @@ func (s *Storage) Create(ctx context.Context, user storage.UserCreateDTO) (id in
 	return id, err
 }
 
-func (s *Storage) Update(ctx context.Context, id int, user storage.User) (err error) {
+func (s *Storage) Update(ctx context.Context, id int, user storageuser.Entity) (err error) {
 	query := `
 		UPDATE
     		users

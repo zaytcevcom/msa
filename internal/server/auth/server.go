@@ -26,6 +26,7 @@ type Token struct {
 }
 
 type Application interface {
+	Health(ctx context.Context) interface{}
 	Auth(ctx context.Context, header http.Header) (int, error)
 	Login(ctx context.Context, username string, password string) (*Token, error)
 }

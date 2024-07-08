@@ -13,7 +13,7 @@ import (
 	"github.com/zaytcevcom/msa/internal/auth"
 	"github.com/zaytcevcom/msa/internal/logger"
 	internalauth "github.com/zaytcevcom/msa/internal/server/auth"
-	sqlstorage "github.com/zaytcevcom/msa/internal/storage/sql"
+	sqlstorageuser "github.com/zaytcevcom/msa/internal/storage/user/sql"
 )
 
 var configFile string
@@ -37,7 +37,7 @@ func main() {
 
 	logg := logger.New(config.Logger.Level, nil)
 
-	storage := sqlstorage.New(config.Postgres.Dsn)
+	storage := sqlstorageuser.New(config.Postgres.Dsn)
 	if err = storage.Connect(ctx); err != nil {
 		fmt.Println("cannot connect to storage: %w", err)
 		return
@@ -50,10 +50,10 @@ func main() {
 		}
 	}(storage, ctx)
 
-	app := auth.New(logg, storage)
+	authApp := auth.New(logg, storage)
 
 	port := 8001
-	server := internalauth.New(logg, app, "", port)
+	server := internalauth.New(logg, authApp, "", port)
 
 	go func() {
 		<-ctx.Done()

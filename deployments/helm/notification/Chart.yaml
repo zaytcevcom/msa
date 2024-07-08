@@ -1,0 +1,5 @@
+apiVersion: v2
+name: notification
+description: Notification app
+type: application
+version: 1.0.0

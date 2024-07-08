@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: account-creator-deployment
+spec:
+  replicas: {{ .Values.accountCreator.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.accountCreator.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.accountCreator.name }}
+    spec:
+      containers:
+        - name: {{ .Values.accountCreator.name }}
+          image: "{{ .Values.accountCreator.image.repository }}:{{ .Values.accountCreator.image.version }}"
+          command: ["sh", "-c", "{{ .Values.accountCreator.startCommand }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs/accountCreator
+      volumes:
+        - name: config-volume
+          configMap:
+            name: account-creator-config

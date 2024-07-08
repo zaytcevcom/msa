@@ -1,6 +1,6 @@
-package storage
+package storageuser
 
-type User struct {
+type Entity struct {
 	ID        int
 	Username  string
 	FirstName string `db:"first_name"`

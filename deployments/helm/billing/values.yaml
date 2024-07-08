@@ -1,0 +1,9 @@
+billing:
+  name: billing
+  replicaCount: 1
+  image:
+    repository: zaytcevcom/go-msa-billing
+    version: 1.0.6
+  ports:
+    http: 8002
+  startCommand: "./opt/app/bin --config configs/billing/config.json"

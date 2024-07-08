@@ -1,0 +1,7 @@
+accountCreator:
+  name: account-creator
+  replicaCount: 1
+  image:
+    repository: zaytcevcom/go-msa-billing-account-creator
+    version: 1.0.6
+  startCommand: "./opt/app/bin --config configs/accountCreator/config.json"

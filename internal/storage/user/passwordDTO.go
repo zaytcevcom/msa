@@ -1,4 +1,4 @@
-package storage
+package storageuser
 
 type PasswordDTO struct {
 	ID           int

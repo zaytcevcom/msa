@@ -1,6 +1,6 @@
-package storage
+package storageuser
 
-type UserCreateDTO struct {
+type CreateDTO struct {
 	Username     string
 	PasswordHash string `db:"password_hash"`
 	FirstName    string `db:"first_name"`

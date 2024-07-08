@@ -1,0 +1,13 @@
+{
+  "logger": {
+    "level": "INFO"
+  },
+  "postgres": {
+    "dsn": "host=db-postgresql port=5432 user=test password=test dbname=demo sslmode=disable"
+  },
+  "rabbit": {
+    "uri": "amqp://guest:guest@rabbitmq:5672/",
+    "exchange": "msa",
+    "queue": "orders"
+  }
+}

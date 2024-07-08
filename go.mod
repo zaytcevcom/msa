@@ -3,12 +3,14 @@ module github.com/zaytcevcom/msa
 go 1.21
 
 require (
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/gorilla/mux v1.8.1
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/pressly/goose v2.7.0+incompatible
 	github.com/prometheus/client_golang v1.19.1
 	github.com/spf13/viper v1.18.2
+	github.com/streadway/amqp v1.1.0
 	github.com/stretchr/testify v1.8.4
 )
 
@@ -18,7 +20,6 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.14.3 // indirect
