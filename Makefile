@@ -21,24 +21,24 @@ docker-build:
 	docker compose -f ./deployments/development/docker-compose.yml build --pull
 
 dockerhub-build-amd64:
-	docker build -f ./build/demo/Dockerfile -t zaytcevcom/go-msa:1.0.6 .
-	docker build -f ./build/migrations/Dockerfile -t zaytcevcom/go-msa-migrations:1.0.6 .
-	docker build -f ./build/auth/Dockerfile -t zaytcevcom/go-msa-auth:1.0.6 .
-	docker build -f ./build/order/Dockerfile -t zaytcevcom/go-msa-order:1.0.6 .
-	docker build -f ./build/billing/Dockerfile -t zaytcevcom/go-msa-billing:1.0.6 .
-	docker build -f ./build/account_creator/Dockerfile -t zaytcevcom/go-msa-billing-account-creator:1.0.6 .
-	docker build -f ./build/notification/Dockerfile -t zaytcevcom/go-msa-notification:1.0.6 .
-	docker build -f ./build/notification_sender/Dockerfile -t zaytcevcom/go-msa-notification-sender:1.0.6 .
+	docker build -f ./build/demo/Dockerfile -t zaytcevcom/go-msa:1.0.7 .
+	docker build -f ./build/migrations/Dockerfile -t zaytcevcom/go-msa-migrations:1.0.7 .
+	docker build -f ./build/auth/Dockerfile -t zaytcevcom/go-msa-auth:1.0.7 .
+	docker build -f ./build/order/Dockerfile -t zaytcevcom/go-msa-order:1.0.7 .
+	docker build -f ./build/billing/Dockerfile -t zaytcevcom/go-msa-billing:1.0.7 .
+	docker build -f ./build/account_creator/Dockerfile -t zaytcevcom/go-msa-billing-account-creator:1.0.7 .
+	docker build -f ./build/notification/Dockerfile -t zaytcevcom/go-msa-notification:1.0.7 .
+	docker build -f ./build/notification_sender/Dockerfile -t zaytcevcom/go-msa-notification-sender:1.0.7 .
 
 dockerhub-push:
-	docker push zaytcevcom/go-msa:1.0.6
-	docker push zaytcevcom/go-msa-migrations:1.0.6
-	docker push zaytcevcom/go-msa-auth:1.0.6
-	docker push zaytcevcom/go-msa-order:1.0.6
-	docker push zaytcevcom/go-msa-billing:1.0.6
-	docker push zaytcevcom/go-msa-billing-account-creator:1.0.6
-	docker push zaytcevcom/go-msa-notification:1.0.6
-	docker push zaytcevcom/go-msa-notification-sender:1.0.6
+	docker push zaytcevcom/go-msa:1.0.7
+	docker push zaytcevcom/go-msa-migrations:1.0.7
+	docker push zaytcevcom/go-msa-auth:1.0.7
+	docker push zaytcevcom/go-msa-order:1.0.7
+	docker push zaytcevcom/go-msa-billing:1.0.7
+	docker push zaytcevcom/go-msa-billing-account-creator:1.0.7
+	docker push zaytcevcom/go-msa-notification:1.0.7
+	docker push zaytcevcom/go-msa-notification-sender:1.0.7
 
 docker-up:
 	docker compose -f ./deployments/development/docker-compose.yml up -d
@@ -87,6 +87,7 @@ lint: install-lint-deps
 helm: k8s-init \
 	helm-prometheus helm-postgres \
 	k8s-rabbitmq \
+	k8s-redis \
 	helm-demo \
 	helm-auth \
 	helm-order \
@@ -146,6 +147,9 @@ k8s-demo:
 
 k8s-rabbitmq:
 	kubectl apply -f ./deployments/k8s/rabbitmq
+
+k8s-redis:
+	kubectl apply -f ./deployments/k8s/redis
 
 k8s-ingress:
 	kubectl apply -f ./deployments/k8s/ingress && \

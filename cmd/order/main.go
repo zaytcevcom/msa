@@ -12,6 +12,7 @@ import (
 	"github.com/zaytcevcom/msa/internal/logger"
 	"github.com/zaytcevcom/msa/internal/order"
 	"github.com/zaytcevcom/msa/internal/rabbitmq"
+	internalredis "github.com/zaytcevcom/msa/internal/redis"
 	internalorder "github.com/zaytcevcom/msa/internal/server/order"
 	sqlstorageorder "github.com/zaytcevcom/msa/internal/storage/order/sql"
 )
@@ -56,7 +57,13 @@ func main() {
 		return
 	}
 
-	orderApp := order.New(logg, storage, broker)
+	redis := internalredis.NewRedis(logg, config.Redis.Host, config.Redis.Port, config.Redis.Password)
+	if redis == nil {
+		fmt.Println("cannot connect to redis")
+		return
+	}
+
+	orderApp := order.New(logg, storage, broker, redis)
 
 	port := 8004
 	server := internalorder.New(logg, orderApp, "", port)
