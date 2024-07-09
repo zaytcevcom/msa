@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
+	ordermiddleware "github.com/zaytcevcom/msa/internal/server/order/middleware"
 	storageorder "github.com/zaytcevcom/msa/internal/storage/order"
 )
 
@@ -16,6 +18,7 @@ type Order struct {
 	logger  Logger
 	storage Storage
 	broker  MessageBroker
+	cache   Cache
 }
 
 type Logger interface {
@@ -37,6 +40,11 @@ type MessageBroker interface {
 	Close() error
 }
 
+type Cache interface {
+	Get(key string) (string, bool)
+	Set(key string, value string) bool
+}
+
 type Status int
 
 const (
@@ -45,11 +53,12 @@ const (
 	Done
 )
 
-func New(logger Logger, storage Storage, broker MessageBroker) *Order {
+func New(logger Logger, storage Storage, broker MessageBroker, cache Cache) *Order {
 	return &Order{
 		logger:  logger,
 		storage: storage,
 		broker:  broker,
+		cache:   cache,
 	}
 }
 
@@ -62,6 +71,16 @@ func (o *Order) Health(_ context.Context) interface{} {
 }
 
 func (o *Order) Create(ctx context.Context, userID int, productID int, sum float64, email string) (int, error) {
+	requestID := getRequestID(ctx)
+
+	if requestID != "" {
+		val, found := o.cache.Get(requestID)
+		if found {
+			id, _ := strconv.Atoi(val)
+			return id, nil
+		}
+	}
+
 	id, err := o.storage.Create(ctx, userID, productID, sum, Pending, time.Now())
 	if err != nil {
 		return 0, err
@@ -91,7 +110,24 @@ func (o *Order) Create(ctx context.Context, userID int, productID int, sum float
 	}
 	sendNotification(event, o.logger, o.broker)
 
+	if requestID != "" {
+		o.cache.Set(requestID, strconv.Itoa(id))
+	}
+
 	return id, nil
+}
+
+func getRequestID(ctx context.Context) string {
+	value := ctx.Value(ordermiddleware.RequestIDKey{})
+	if value == nil {
+		return ""
+	}
+
+	if requestID, ok := value.(string); ok {
+		return requestID
+	}
+
+	return ""
 }
 
 func pay(ctx context.Context, orderID int, amount float64) (bool, error) {

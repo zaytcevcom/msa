@@ -3,7 +3,7 @@ auth:
   replicaCount: 1
   image:
     repository: zaytcevcom/go-msa-auth
-    version: 1.0.6
+    version: 1.0.7
   ports:
     http: 8001
   startCommand: "./opt/app/bin --config configs/auth/config.json"
