@@ -1,0 +1,7 @@
+notificationSender:
+  name: notification-sender
+  replicaCount: 1
+  image:
+    repository: zaytcevcom/go-msa-notification-sender
+    version: 1.0.6
+  startCommand: "./opt/app/bin --config configs/notificationSender/config.json"

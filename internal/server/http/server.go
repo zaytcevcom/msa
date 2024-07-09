@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/zaytcevcom/msa/internal/server/http/middleware"
-	"github.com/zaytcevcom/msa/internal/storage"
+	"github.com/zaytcevcom/msa/internal/storage/user"
 )
 
 type Server struct {
@@ -25,7 +25,7 @@ type Logger interface {
 
 type Application interface {
 	Health(ctx context.Context) interface{}
-	GetByID(ctx context.Context, id int) (*storage.User, error)
+	GetByID(ctx context.Context, id int) (*storageuser.Entity, error)
 	Create(
 		ctx context.Context,
 		username string,
@@ -35,7 +35,7 @@ type Application interface {
 		email string,
 		phone string,
 	) (int, error)
-	Update(ctx context.Context, id int, user storage.User) error
+	Update(ctx context.Context, id int, user storageuser.Entity) error
 	Delete(ctx context.Context, id int) error
 }
 

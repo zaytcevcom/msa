@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-deployment
+spec:
+  replicas: {{ .Values.notification.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.notification.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.notification.name }}
+    spec:
+      containers:
+        - name: {{ .Values.notification.name }}
+          image: "{{ .Values.notification.image.repository }}:{{ .Values.notification.image.version }}"
+          command: ["sh", "-c", "{{ .Values.notification.startCommand }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs/notification
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.notification.ports.http }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: config-volume
+          configMap:
+            name: notification-config

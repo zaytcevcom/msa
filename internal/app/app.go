@@ -4,14 +4,17 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
+	"fmt"
 
-	"github.com/zaytcevcom/msa/internal/storage"
+	"github.com/zaytcevcom/msa/internal/storage/user"
 )
 
 type App struct {
 	logger  Logger
 	storage Storage
+	broker  MessageBroker
 }
 
 type Logger interface {
@@ -22,18 +25,24 @@ type Logger interface {
 }
 
 type Storage interface {
-	GetByID(ctx context.Context, id int) *storage.User
-	Create(ctx context.Context, user storage.UserCreateDTO) (int, error)
-	Update(ctx context.Context, id int, user storage.User) error
+	GetByID(ctx context.Context, id int) *storageuser.Entity
+	Create(ctx context.Context, user storageuser.CreateDTO) (int, error)
+	Update(ctx context.Context, id int, user storageuser.Entity) error
 	Delete(ctx context.Context, id int) error
 	Connect(ctx context.Context) error
 	Close(ctx context.Context) error
 }
 
-func New(logger Logger, storage Storage) *App {
+type MessageBroker interface {
+	Publish(body string) error
+	Close() error
+}
+
+func New(logger Logger, storage Storage, broker MessageBroker) *App {
 	return &App{
 		logger:  logger,
 		storage: storage,
+		broker:  broker,
 	}
 }
 
@@ -45,7 +54,7 @@ func (a *App) Health(_ context.Context) interface{} {
 	}
 }
 
-func (a *App) GetByID(ctx context.Context, id int) (*storage.User, error) {
+func (a *App) GetByID(ctx context.Context, id int) (*storageuser.Entity, error) {
 	user := a.storage.GetByID(ctx, id)
 
 	if user == nil {
@@ -67,7 +76,7 @@ func (a *App) Create(
 	hash := sha256.Sum256([]byte(password))
 	hashString := hex.EncodeToString(hash[:])
 
-	user := storage.UserCreateDTO{
+	user := storageuser.CreateDTO{
 		Username:     username,
 		PasswordHash: hashString,
 		FirstName:    firstName,
@@ -81,10 +90,27 @@ func (a *App) Create(
 		return 0, err
 	}
 
+	event := storageuser.UserEvent{
+		Type:   storageuser.UserCreated,
+		UserID: id,
+	}
+
+	msg, err := json.Marshal(event)
+	if err != nil {
+		a.logger.Error(fmt.Sprintf("Failed marshal: %s", err))
+		return id, nil
+	}
+
+	err = a.broker.Publish(string(msg))
+	if err != nil {
+		a.logger.Error(fmt.Sprintf("Failed publish: %s", err))
+		return id, nil
+	}
+
 	return id, nil
 }
 
-func (a *App) Update(ctx context.Context, id int, user storage.User) error {
+func (a *App) Update(ctx context.Context, id int, user storageuser.Entity) error {
 	return a.storage.Update(ctx, id, user)
 }
 

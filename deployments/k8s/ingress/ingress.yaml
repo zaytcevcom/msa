@@ -18,10 +18,31 @@ spec:
                 name: auth
                 port:
                   number: 8001
-          - path: /
+          - path: /user
             pathType: Prefix
             backend:
               service:
                 name: demo
                 port:
                   number: 8000
+          - path: /account
+            pathType: Prefix
+            backend:
+              service:
+                name: billing
+                port:
+                  number: 8002
+          - path: /notification
+            pathType: Prefix
+            backend:
+              service:
+                name: notification
+                port:
+                  number: 8003
+          - path: /order
+            pathType: Prefix
+            backend:
+              service:
+                name: order
+                port:
+                  number: 8004

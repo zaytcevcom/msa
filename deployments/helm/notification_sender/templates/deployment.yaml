@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-sender-deployment
+spec:
+  replicas: {{ .Values.notificationSender.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.notificationSender.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.notificationSender.name }}
+    spec:
+      containers:
+        - name: {{ .Values.notificationSender.name }}
+          image: "{{ .Values.notificationSender.image.repository }}:{{ .Values.notificationSender.image.version }}"
+          command: ["sh", "-c", "{{ .Values.notificationSender.startCommand }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs/notificationSender
+      volumes:
+        - name: config-volume
+          configMap:
+            name: notification-sender-config

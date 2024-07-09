@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/zaytcevcom/msa/internal/server/http/middleware"
-	"github.com/zaytcevcom/msa/internal/storage"
+	storageuser "github.com/zaytcevcom/msa/internal/storage/user"
 )
 
 type handler struct {
@@ -130,7 +130,7 @@ func (s *handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := storage.User{
+	user := storageuser.Entity{
 		ID:        id,
 		Username:  userData.Username,
 		FirstName: userData.FirstName,

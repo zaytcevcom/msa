@@ -1,0 +1,9 @@
+notification:
+  name: notification
+  replicaCount: 1
+  image:
+    repository: zaytcevcom/go-msa-notification
+    version: 1.0.6
+  ports:
+    http: 8003
+  startCommand: "./opt/app/bin --config configs/notification/config.json"

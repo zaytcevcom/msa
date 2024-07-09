@@ -11,9 +11,10 @@ import (
 
 	"github.com/zaytcevcom/msa/internal/app"
 	"github.com/zaytcevcom/msa/internal/logger"
+	"github.com/zaytcevcom/msa/internal/rabbitmq"
 	internalhttp "github.com/zaytcevcom/msa/internal/server/http"
 	"github.com/zaytcevcom/msa/internal/server/metrics"
-	sqlstorage "github.com/zaytcevcom/msa/internal/storage/sql"
+	sqlstorageuser "github.com/zaytcevcom/msa/internal/storage/user/sql"
 )
 
 var configFile string
@@ -40,7 +41,7 @@ func main() {
 
 	logg := logger.New(config.Logger.Level, nil)
 
-	storage := sqlstorage.New(config.Postgres.Dsn)
+	storage := sqlstorageuser.New(config.Postgres.Dsn)
 	if err = storage.Connect(ctx); err != nil {
 		fmt.Println("cannot connect to storage: %w", err)
 		return
@@ -57,9 +58,15 @@ func main() {
 		_ = metrics.Listen("", portMetrics)
 	}()
 
-	demo := app.New(logg, storage)
+	broker, err := rabbitmq.NewRabbitMQ(logg, config.Rabbit.URI, config.Rabbit.Exchange, config.Rabbit.Queue)
+	if err != nil {
+		fmt.Println("cannot connect to rabbit", err)
+		return
+	}
 
-	server := internalhttp.New(logg, demo, "", port)
+	demoApp := app.New(logg, storage, broker)
+
+	server := internalhttp.New(logg, demoApp, "", port)
 
 	go func() {
 		<-ctx.Done()

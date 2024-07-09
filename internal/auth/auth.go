@@ -12,7 +12,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	internalauth "github.com/zaytcevcom/msa/internal/server/auth"
-	"github.com/zaytcevcom/msa/internal/storage"
+	"github.com/zaytcevcom/msa/internal/storage/user"
 )
 
 var signingKey = []byte("demo-secret-key")
@@ -30,13 +30,21 @@ type Logger interface {
 }
 
 type Storage interface {
-	GetByUsername(ctx context.Context, username string) *storage.PasswordDTO
+	GetByUsername(ctx context.Context, username string) *storageuser.PasswordDTO
 }
 
 func New(logger Logger, storage Storage) *Auth {
 	return &Auth{
 		logger:  logger,
 		storage: storage,
+	}
+}
+
+func (a *Auth) Health(_ context.Context) interface{} {
+	return struct {
+		Status string `json:"status"`
+	}{
+		Status: "OK",
 	}
 }
 

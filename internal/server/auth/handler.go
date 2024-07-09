@@ -35,8 +35,9 @@ func NewHandler(logger Logger, app Application) http.Handler {
 	return r
 }
 
-func (s *handler) Health(w http.ResponseWriter, _ *http.Request) {
-	w.WriteHeader(http.StatusOK)
+func (s *handler) Health(w http.ResponseWriter, r *http.Request) {
+	response := s.app.Health(r.Context())
+	writeResponseSuccess(w, response, s.logger)
 }
 
 func (s *handler) Login(w http.ResponseWriter, r *http.Request) {

@@ -21,14 +21,24 @@ docker-build:
 	docker compose -f ./deployments/development/docker-compose.yml build --pull
 
 dockerhub-build-amd64:
-	docker build -f ./build/demo/Dockerfile -t zaytcevcom/go-msa:1.0.5 .
-	docker build -f ./build/migrations/Dockerfile -t zaytcevcom/go-msa-migrations:1.0.1 .
-	docker build -f ./build/auth/Dockerfile -t zaytcevcom/go-msa-auth:1.0.1 .
+	docker build -f ./build/demo/Dockerfile -t zaytcevcom/go-msa:1.0.6 .
+	docker build -f ./build/migrations/Dockerfile -t zaytcevcom/go-msa-migrations:1.0.6 .
+	docker build -f ./build/auth/Dockerfile -t zaytcevcom/go-msa-auth:1.0.6 .
+	docker build -f ./build/order/Dockerfile -t zaytcevcom/go-msa-order:1.0.6 .
+	docker build -f ./build/billing/Dockerfile -t zaytcevcom/go-msa-billing:1.0.6 .
+	docker build -f ./build/account_creator/Dockerfile -t zaytcevcom/go-msa-billing-account-creator:1.0.6 .
+	docker build -f ./build/notification/Dockerfile -t zaytcevcom/go-msa-notification:1.0.6 .
+	docker build -f ./build/notification_sender/Dockerfile -t zaytcevcom/go-msa-notification-sender:1.0.6 .
 
 dockerhub-push:
-	docker push zaytcevcom/go-msa:1.0.5
-	docker push zaytcevcom/go-msa-migrations:1.0.1
-	docker push zaytcevcom/go-msa-auth:1.0.1
+	docker push zaytcevcom/go-msa:1.0.6
+	docker push zaytcevcom/go-msa-migrations:1.0.6
+	docker push zaytcevcom/go-msa-auth:1.0.6
+	docker push zaytcevcom/go-msa-order:1.0.6
+	docker push zaytcevcom/go-msa-billing:1.0.6
+	docker push zaytcevcom/go-msa-billing-account-creator:1.0.6
+	docker push zaytcevcom/go-msa-notification:1.0.6
+	docker push zaytcevcom/go-msa-notification-sender:1.0.6
 
 docker-up:
 	docker compose -f ./deployments/development/docker-compose.yml up -d
@@ -76,8 +86,12 @@ lint: install-lint-deps
 
 helm: k8s-init \
 	helm-prometheus helm-postgres \
+	k8s-rabbitmq \
 	helm-demo \
 	helm-auth \
+	helm-order \
+	helm-billing helm-billing-account-creator \
+	helm-notification helm-notification-sender \
 	k8s-ingress
 
 helm-prometheus:
@@ -98,6 +112,26 @@ helm-auth:
 	kubectl create configmap auth-config --from-file=configs/auth/config.json && \
 	helm install auth ./deployments/helm/auth
 
+helm-order:
+	kubectl create configmap order-config --from-file=configs/order/config.json && \
+	helm install order ./deployments/helm/order
+
+helm-billing:
+	kubectl create configmap billing-config --from-file=configs/billing/config.json && \
+	helm install billing ./deployments/helm/billing
+
+helm-billing-account-creator:
+	kubectl create configmap account-creator-config --from-file=configs/account_creator/config.json && \
+	helm install account-creator ./deployments/helm/account_creator
+
+helm-notification:
+	kubectl create configmap notification-config --from-file=configs/notification/config.json && \
+	helm install notification ./deployments/helm/notification
+
+helm-notification-sender:
+	kubectl create configmap notification-sender-config --from-file=configs/notification_sender/config.json && \
+	helm install notification-sender ./deployments/helm/notification_sender
+
 k8s: k8s-init \
 	k8s-demo \
 	k8s-ingress
@@ -109,6 +143,9 @@ k8s-init:
 k8s-demo:
 	kubectl create configmap demo-config --from-file=configs/demo/config.json && \
 	kubectl apply -f ./deployments/k8s/demo
+
+k8s-rabbitmq:
+	kubectl apply -f ./deployments/k8s/rabbitmq
 
 k8s-ingress:
 	kubectl apply -f ./deployments/k8s/ingress && \
