@@ -65,6 +65,6 @@ func main() {
 	}()
 
 	if err := s.Start(); err != nil {
-		logg.Error("failed to start grpc server: " + err.Error())
+		logg.Error("failed to start: " + err.Error())
 	}
 }

@@ -1,0 +1,7 @@
+orderConsumerStockRejected:
+  name: order-consumer-stock-rejected
+  replicaCount: 1
+  image:
+    repository: zaytcevcom/go-msa-order-consumer-stock-rejected
+    version: 1.0.8
+  startCommand: "./opt/app/bin --config configs/orderConsumerStockRejected/config.json"

@@ -21,24 +21,34 @@ docker-build:
 	docker compose -f ./deployments/development/docker-compose.yml build --pull
 
 dockerhub-build-amd64:
-	docker build -f ./build/demo/Dockerfile -t zaytcevcom/go-msa:1.0.7 .
-	docker build -f ./build/migrations/Dockerfile -t zaytcevcom/go-msa-migrations:1.0.7 .
-	docker build -f ./build/auth/Dockerfile -t zaytcevcom/go-msa-auth:1.0.7 .
-	docker build -f ./build/order/Dockerfile -t zaytcevcom/go-msa-order:1.0.7 .
-	docker build -f ./build/billing/Dockerfile -t zaytcevcom/go-msa-billing:1.0.7 .
-	docker build -f ./build/account_creator/Dockerfile -t zaytcevcom/go-msa-billing-account-creator:1.0.7 .
-	docker build -f ./build/notification/Dockerfile -t zaytcevcom/go-msa-notification:1.0.7 .
-	docker build -f ./build/notification_sender/Dockerfile -t zaytcevcom/go-msa-notification-sender:1.0.7 .
+	docker build -f ./build/demo/Dockerfile -t zaytcevcom/go-msa:1.0.8 .
+	docker build -f ./build/migrations/Dockerfile -t zaytcevcom/go-msa-migrations:1.0.8 .
+	docker build -f ./build/auth/Dockerfile -t zaytcevcom/go-msa-auth:1.0.8 .
+	docker build -f ./build/order/Dockerfile -t zaytcevcom/go-msa-order:1.0.8 .
+	docker build -f ./build/billing/Dockerfile -t zaytcevcom/go-msa-billing:1.0.8 .
+	docker build -f ./build/account_creator/Dockerfile -t zaytcevcom/go-msa-billing-account-creator:1.0.8 .
+	docker build -f ./build/notification/Dockerfile -t zaytcevcom/go-msa-notification:1.0.8 .
+	docker build -f ./build/notification_sender/Dockerfile -t zaytcevcom/go-msa-notification-sender:1.0.8 .
+	docker build -f ./build/stock_consumer_order_paid/Dockerfile -t zaytcevcom/go-msa-stock-consumer-order-paid:1.0.8 .
+	docker build -f ./build/delivery_consumer_stock_reserved/Dockerfile -t zaytcevcom/go-msa-delivery-consumer-stock-reserved:1.0.8 .
+	docker build -f ./build/order_consumer_delivery_reserved/Dockerfile -t zaytcevcom/go-msa-order-consumer-delivery-reserved:1.0.8 .
+	docker build -f ./build/order_consumer_stock_rejected/Dockerfile -t zaytcevcom/go-msa-order-consumer-stock-rejected:1.0.8 .
+	docker build -f ./build/stock_consumer_delivery_rejected/Dockerfile -t zaytcevcom/go-msa-stock-consumer-delivery-rejected:1.0.8 .
 
 dockerhub-push:
-	docker push zaytcevcom/go-msa:1.0.7
-	docker push zaytcevcom/go-msa-migrations:1.0.7
-	docker push zaytcevcom/go-msa-auth:1.0.7
-	docker push zaytcevcom/go-msa-order:1.0.7
-	docker push zaytcevcom/go-msa-billing:1.0.7
-	docker push zaytcevcom/go-msa-billing-account-creator:1.0.7
-	docker push zaytcevcom/go-msa-notification:1.0.7
-	docker push zaytcevcom/go-msa-notification-sender:1.0.7
+	docker push zaytcevcom/go-msa:1.0.8
+	docker push zaytcevcom/go-msa-migrations:1.0.8
+	docker push zaytcevcom/go-msa-auth:1.0.8
+	docker push zaytcevcom/go-msa-order:1.0.8
+	docker push zaytcevcom/go-msa-billing:1.0.8
+	docker push zaytcevcom/go-msa-billing-account-creator:1.0.8
+	docker push zaytcevcom/go-msa-notification:1.0.8
+	docker push zaytcevcom/go-msa-notification-sender:1.0.8
+	docker push zaytcevcom/go-msa-stock-consumer-order-paid:1.0.8
+	docker push zaytcevcom/go-msa-delivery-consumer-stock-reserved:1.0.8
+	docker push zaytcevcom/go-msa-order-consumer-delivery-reserved:1.0.8
+	docker push zaytcevcom/go-msa-order-consumer-stock-rejected:1.0.8
+	docker push zaytcevcom/go-msa-stock-consumer-delivery-rejected:1.0.8
 
 docker-up:
 	docker compose -f ./deployments/development/docker-compose.yml up -d
@@ -93,6 +103,8 @@ helm: k8s-init \
 	helm-order \
 	helm-billing helm-billing-account-creator \
 	helm-notification helm-notification-sender \
+	helm-stock-consumer-order-paid helm-delivery-consumer-stock-reserved helm-order-consumer-delivery-reserved \
+	helm-order-consumer-stock-rejected helm-stock_consumer_delivery_rejected\
 	k8s-ingress
 
 helm-prometheus:
@@ -133,6 +145,26 @@ helm-notification-sender:
 	kubectl create configmap notification-sender-config --from-file=configs/notification_sender/config.json && \
 	helm install notification-sender ./deployments/helm/notification_sender
 
+helm-stock-consumer-order-paid:
+	kubectl create configmap stock-consumer-order-paid-config --from-file=configs/stock_consumer_order_paid/config.json && \
+	helm install stock-consumer-order-paid ./deployments/helm/stock_consumer_order_paid
+
+helm-delivery-consumer-stock-reserved:
+	kubectl create configmap delivery-consumer-stock-reserved-config --from-file=configs/delivery_consumer_stock_reserved/config.json && \
+	helm install delivery-consumer-stock-reserved ./deployments/helm/delivery_consumer_stock_reserved
+
+helm-order-consumer-delivery-reserved:
+	kubectl create configmap order-consumer-delivery-reserved-config --from-file=configs/order_consumer_delivery_reserved/config.json && \
+	helm install order-consumer-delivery-reserved ./deployments/helm/order_consumer_delivery_reserved
+
+helm-order-consumer-stock-rejected:
+	kubectl create configmap order-consumer-stock-rejected-config --from-file=configs/order_consumer_stock_rejected/config.json && \
+	helm install order-consumer-stock-rejected ./deployments/helm/order_consumer_stock_rejected
+
+helm-stock_consumer_delivery_rejected:
+	kubectl create configmap stock-consumer-delivery-rejected-config --from-file=configs/stock_consumer_delivery_rejected/config.json && \
+	helm install stock-consumer-delivery-rejected ./deployments/helm/stock_consumer_delivery_rejected
+
 k8s: k8s-init \
 	k8s-demo \
 	k8s-ingress
@@ -168,3 +200,8 @@ migrations-migrate:
 
 ab:
 	@bash -c 'for i in {1..25}; do ab -c 250 -n 1000 "http://arch.homework/user/1"; done'
+
+r: dockerhub-build-amd64 dockerhub-push helm
+it:
+	minikube addons enable ingress && \
+    minikube tunnel

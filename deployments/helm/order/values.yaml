@@ -3,7 +3,7 @@ order:
   replicaCount: 1
   image:
     repository: zaytcevcom/go-msa-order
-    version: 1.0.7
+    version: 1.0.8
   ports:
     http: 8004
   startCommand: "./opt/app/bin --config configs/order/config.json"

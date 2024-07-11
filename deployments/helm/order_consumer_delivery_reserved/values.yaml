@@ -1,0 +1,7 @@
+orderConsumerDeliveryReserved:
+  name: order-consumer-delivery-reserved
+  replicaCount: 1
+  image:
+    repository: zaytcevcom/go-msa-order-consumer-delivery-reserved
+    version: 1.0.8
+  startCommand: "./opt/app/bin --config configs/orderConsumerDeliveryReserved/config.json"

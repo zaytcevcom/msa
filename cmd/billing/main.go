@@ -11,6 +11,7 @@ import (
 
 	"github.com/zaytcevcom/msa/internal/billing"
 	"github.com/zaytcevcom/msa/internal/logger"
+	"github.com/zaytcevcom/msa/internal/rabbitmq"
 	internalbilling "github.com/zaytcevcom/msa/internal/server/billing"
 	sqlstoragebilling "github.com/zaytcevcom/msa/internal/storage/billing/sql"
 )
@@ -49,7 +50,18 @@ func main() {
 		}
 	}(storage, ctx)
 
-	billingApp := billing.New(logg, storage)
+	producerSuccess, err := rabbitmq.NewRabbitMQ(
+		logg,
+		config.RabbitProducerSuccess.URI,
+		config.RabbitProducerSuccess.Exchange,
+		config.RabbitProducerSuccess.Queue,
+	)
+	if err != nil {
+		fmt.Println("cannot connect to producerSuccess", err)
+		return
+	}
+
+	billingApp := billing.New(logg, storage, producerSuccess)
 
 	port := 8002
 	server := internalbilling.New(logg, billingApp, "", port)

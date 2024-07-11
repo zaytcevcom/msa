@@ -1,0 +1,7 @@
+stockConsumerDeliveryRejected:
+  name: stock-consumer-delivery-rejected
+  replicaCount: 1
+  image:
+    repository: zaytcevcom/go-msa-stock-consumer-delivery-rejected
+    version: 1.0.8
+  startCommand: "./opt/app/bin --config configs/stockConsumerDeliveryRejected/config.json"

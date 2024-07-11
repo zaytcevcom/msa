@@ -1,0 +1,7 @@
+stockConsumerOrderPaid:
+  name: stock-consumer-order-paid
+  replicaCount: 1
+  image:
+    repository: zaytcevcom/go-msa-stock-consumer-order-paid
+    version: 1.0.8
+  startCommand: "./opt/app/bin --config configs/stockConsumerOrderPaid/config.json"

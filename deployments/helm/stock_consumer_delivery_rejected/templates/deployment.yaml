@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock-consumer-delivery-rejected-deployment
+spec:
+  replicas: {{ .Values.stockConsumerDeliveryRejected.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.stockConsumerDeliveryRejected.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.stockConsumerDeliveryRejected.name }}
+    spec:
+      containers:
+        - name: {{ .Values.stockConsumerDeliveryRejected.name }}
+          image: "{{ .Values.stockConsumerDeliveryRejected.image.repository }}:{{ .Values.stockConsumerDeliveryRejected.image.version }}"
+          command: ["sh", "-c", "{{ .Values.stockConsumerDeliveryRejected.startCommand }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs/stockConsumerDeliveryRejected
+      volumes:
+        - name: config-volume
+          configMap:
+            name: stock-consumer-delivery-rejected-config

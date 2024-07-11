@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	ordermiddleware "github.com/zaytcevcom/msa/internal/server/order/middleware"
@@ -33,6 +34,7 @@ func NewHandler(logger Logger, app Application) http.Handler {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/health", h.Health).Methods(http.MethodGet)
+	r.HandleFunc("/order/{id}", h.GetByID).Methods(http.MethodGet)
 	r.HandleFunc("/order", h.Create).Methods(http.MethodPost)
 	r.MethodNotAllowedHandler = http.HandlerFunc(methodNotAllowedHandler)
 	r.NotFoundHandler = http.HandlerFunc(methodNotFoundHandler)
@@ -43,6 +45,30 @@ func NewHandler(logger Logger, app Application) http.Handler {
 func (s *handler) Health(w http.ResponseWriter, r *http.Request) {
 	response := s.app.Health(r.Context())
 	writeResponseSuccess(w, response, s.logger)
+}
+
+func (s *handler) GetByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idStr, ok := vars["id"]
+
+	if !ok {
+		writeResponseError(w, fmt.Errorf("parameter 'id' is missing from URL"), s.logger)
+		return
+	}
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		writeResponseError(w, err, s.logger)
+		return
+	}
+
+	order, err := s.app.GetByID(r.Context(), id)
+	if err != nil {
+		writeResponseError(w, err, s.logger)
+		return
+	}
+
+	writeResponseSuccess(w, order, s.logger)
 }
 
 func (s *handler) Create(w http.ResponseWriter, r *http.Request) {

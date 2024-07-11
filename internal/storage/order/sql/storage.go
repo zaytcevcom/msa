@@ -7,6 +7,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib" //nolint:justifying
 	"github.com/jmoiron/sqlx"
 	"github.com/zaytcevcom/msa/internal/order"
+	storageorder "github.com/zaytcevcom/msa/internal/storage/order"
 )
 
 type Storage struct {
@@ -31,6 +32,22 @@ func (s *Storage) Connect(ctx context.Context) (err error) {
 
 func (s *Storage) Close(_ context.Context) error {
 	return s.db.Close()
+}
+
+func (s *Storage) GetByID(ctx context.Context, id int) (user *storageorder.EntityOrder) {
+	var orders []*storageorder.EntityOrder
+	query := "SELECT id, user_id, product_id, sum, status, time FROM orders WHERE id = $1"
+
+	err := s.db.SelectContext(ctx, &orders, query, id)
+	if err != nil {
+		return nil
+	}
+
+	if len(orders) != 1 {
+		return nil
+	}
+
+	return orders[0]
 }
 
 func (s *Storage) Create(
