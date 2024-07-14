@@ -1,0 +1,7 @@
+deliveryConsumerStockReserved:
+  name: delivery-consumer-stock-reserved
+  replicaCount: 1
+  image:
+    repository: zaytcevcom/go-msa-delivery-consumer-stock-reserved
+    version: 1.0.8
+  startCommand: "./opt/app/bin --config configs/deliveryConsumerStockReserved/config.json"

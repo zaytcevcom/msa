@@ -2,7 +2,9 @@ package billing
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 
 	internalbilling "github.com/zaytcevcom/msa/internal/server/billing"
 	"github.com/zaytcevcom/msa/internal/storage/billing"
@@ -11,6 +13,7 @@ import (
 type Billing struct {
 	logger  Logger
 	storage Storage
+	broker  MessageBroker
 }
 
 type Logger interface {
@@ -30,10 +33,16 @@ type Storage interface {
 	Close(ctx context.Context) error
 }
 
-func New(logger Logger, storage Storage) *Billing {
+type MessageBroker interface {
+	Publish(body string) error
+	Close() error
+}
+
+func New(logger Logger, storage Storage, broker MessageBroker) *Billing {
 	return &Billing{
 		logger:  logger,
 		storage: storage,
+		broker:  broker,
 	}
 }
 
@@ -97,5 +106,30 @@ func (b *Billing) Withdraw(ctx context.Context, accountID int, orderID int, amou
 		return 0, err
 	}
 
+	event := struct {
+		OrderID   int `json:"orderId,omitempty"`
+		ProductID int `json:"productId,omitempty"`
+		Count     int `json:"count,omitempty"`
+	}{
+		OrderID:   orderID,
+		ProductID: 1, // todo: Hardcoded
+		Count:     1, // todo: Hardcoded
+	}
+	sendEventSuccess(event, b.logger, b.broker)
+
 	return id, nil
+}
+
+func sendEventSuccess(event interface{}, logger Logger, broker MessageBroker) {
+	msg, err := json.Marshal(event)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed marshal: %s", err))
+		return
+	}
+
+	err = broker.Publish(string(msg))
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed publish: %s", err))
+		return
+	}
 }

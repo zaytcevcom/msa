@@ -1,0 +1,5 @@
+apiVersion: v2
+name: order-consumer-delivery-reserved
+description: Order consumer delivery reserved
+type: application
+version: 1.0.0

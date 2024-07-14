@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -29,6 +30,7 @@ type Logger interface {
 }
 
 type Storage interface {
+	GetByID(ctx context.Context, id int) *storageorder.EntityOrder
 	Create(ctx context.Context, userID int, productID int, sum float64, status Status, time time.Time) (int, error)
 	ChangeStatus(ctx context.Context, orderID int, status Status) error
 	Connect(ctx context.Context) error
@@ -51,6 +53,7 @@ const (
 	Pending Status = iota
 	Wait
 	Done
+	NeedDelivery
 )
 
 func New(logger Logger, storage Storage, broker MessageBroker, cache Cache) *Order {
@@ -68,6 +71,16 @@ func (o *Order) Health(_ context.Context) interface{} {
 	}{
 		Status: "OK",
 	}
+}
+
+func (o *Order) GetByID(ctx context.Context, id int) (*storageorder.EntityOrder, error) {
+	order := o.storage.GetByID(ctx, id)
+
+	if order == nil {
+		return nil, errors.New("user not found")
+	}
+
+	return order, nil
 }
 
 func (o *Order) Create(ctx context.Context, userID int, productID int, sum float64, email string) (int, error) {

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	ordermiddleware "github.com/zaytcevcom/msa/internal/server/order/middleware"
+	storageorder "github.com/zaytcevcom/msa/internal/storage/order"
 )
 
 type Server struct {
@@ -29,6 +30,7 @@ type Account struct {
 
 type Application interface {
 	Health(ctx context.Context) interface{}
+	GetByID(ctx context.Context, id int) (*storageorder.EntityOrder, error)
 	Create(ctx context.Context, userID int, productID int, sum float64, email string) (int, error)
 }
 

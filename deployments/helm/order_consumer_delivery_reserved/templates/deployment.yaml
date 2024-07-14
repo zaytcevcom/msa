@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-consumer-delivery-reserved-deployment
+spec:
+  replicas: {{ .Values.orderConsumerDeliveryReserved.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.orderConsumerDeliveryReserved.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.orderConsumerDeliveryReserved.name }}
+    spec:
+      containers:
+        - name: {{ .Values.orderConsumerDeliveryReserved.name }}
+          image: "{{ .Values.orderConsumerDeliveryReserved.image.repository }}:{{ .Values.orderConsumerDeliveryReserved.image.version }}"
+          command: ["sh", "-c", "{{ .Values.orderConsumerDeliveryReserved.startCommand }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs/orderConsumerDeliveryReserved
+      volumes:
+        - name: config-volume
+          configMap:
+            name: order-consumer-delivery-reserved-config

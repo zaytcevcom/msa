@@ -3,8 +3,9 @@ package main
 import "github.com/spf13/viper"
 
 type Config struct {
-	Logger   loggerConf
-	Postgres PostgresConf
+	Logger                loggerConf
+	Postgres              PostgresConf
+	RabbitProducerSuccess RabbitConf
 }
 
 type loggerConf struct {
@@ -13,6 +14,12 @@ type loggerConf struct {
 
 type PostgresConf struct {
 	Dsn string
+}
+
+type RabbitConf struct {
+	URI      string
+	Exchange string
+	Queue    string
 }
 
 func LoadConfig(path string) (Config, error) {

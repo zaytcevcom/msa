@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: delivery-consumer-stock-reserved-deployment
+spec:
+  replicas: {{ .Values.deliveryConsumerStockReserved.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deliveryConsumerStockReserved.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deliveryConsumerStockReserved.name }}
+    spec:
+      containers:
+        - name: {{ .Values.deliveryConsumerStockReserved.name }}
+          image: "{{ .Values.deliveryConsumerStockReserved.image.repository }}:{{ .Values.deliveryConsumerStockReserved.image.version }}"
+          command: ["sh", "-c", "{{ .Values.deliveryConsumerStockReserved.startCommand }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs/deliveryConsumerStockReserved
+      volumes:
+        - name: config-volume
+          configMap:
+            name: delivery-consumer-stock-reserved-config

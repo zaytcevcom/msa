@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock-consumer-order-paid-deployment
+spec:
+  replicas: {{ .Values.stockConsumerOrderPaid.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.stockConsumerOrderPaid.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.stockConsumerOrderPaid.name }}
+    spec:
+      containers:
+        - name: {{ .Values.stockConsumerOrderPaid.name }}
+          image: "{{ .Values.stockConsumerOrderPaid.image.repository }}:{{ .Values.stockConsumerOrderPaid.image.version }}"
+          command: ["sh", "-c", "{{ .Values.stockConsumerOrderPaid.startCommand }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs/stockConsumerOrderPaid
+      volumes:
+        - name: config-volume
+          configMap:
+            name: stock-consumer-order-paid-config

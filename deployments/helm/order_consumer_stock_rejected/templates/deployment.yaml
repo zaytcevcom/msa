@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-consumer-stock-rejected-deployment
+spec:
+  replicas: {{ .Values.orderConsumerStockRejected.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.orderConsumerStockRejected.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.orderConsumerStockRejected.name }}
+    spec:
+      containers:
+        - name: {{ .Values.orderConsumerStockRejected.name }}
+          image: "{{ .Values.orderConsumerStockRejected.image.repository }}:{{ .Values.orderConsumerStockRejected.image.version }}"
+          command: ["sh", "-c", "{{ .Values.orderConsumerStockRejected.startCommand }}"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /configs/orderConsumerStockRejected
+      volumes:
+        - name: config-volume
+          configMap:
+            name: order-consumer-stock-rejected-config

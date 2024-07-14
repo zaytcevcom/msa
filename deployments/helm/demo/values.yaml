@@ -3,7 +3,7 @@ demo:
   replicaCount: 3
   image:
     repository: zaytcevcom/go-msa
-    version: 1.0.7
+    version: 1.0.8
   ports:
     http: 8000
     metrics: 9093
@@ -12,4 +12,4 @@ migrations:
   name: demo-migrations
   image:
     repository: zaytcevcom/go-msa-migrations
-    version: 1.0.7
+    version: 1.0.8
